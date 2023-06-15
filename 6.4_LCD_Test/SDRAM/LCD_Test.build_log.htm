@@ -1,0 +1,77 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: ¦ÌVision V5.17.0.0
+Copyright (C) 2015 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: yy aa, bb, LIC=03CY8-3Y74V-8SGYU-SX7A0-16VJ5-VEQTB
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Standard  Version: 5.17
+Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 1 (build 61)
+Assembler:       Armasm.exe V5.06 update 1 (build 61)
+Linker/Locator:  ArmLink.exe V5.06 update 1 (build 61)
+Library Manager: ArmAr.exe V5.06 update 1 (build 61)
+Hex Converter:   FromElf.exe V5.06 update 1 (build 61)
+CPU DLL:         SARM.DLL V5.17
+Dialog DLL:      DARMSS9.DLL V1.07
+Target DLL:      UL2ARM.DLL V1.74.7.0
+Dialog DLL:      TARMSS9.DLL V1.05
+ 
+<h2>Project:</h2>
+C:\Users\user\Desktop\6.4_LCD_Test\LCD_Test.uvproj
+Project File Date:  06/15/2023
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.06 update 1 (build 61)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
+Rebuild target 'LCD_Test IN RAM'
+compiling ascii6x8.c...
+assembling S3C2410A.s...
+compiling fonts.c...
+compiling glib.c...
+compiling main.c...
+.\Include\led16x16.h(15): warning:  #1295-D: Deprecated declaration adc_test - give arg types
+  void adc_test();
+Source\main.c: 1 warning, 0 errors
+compiling sys_init.c...
+compiling ascii8x16.c...
+compiling led16x16.c...
+.\Include\led16x16.h(15): warning:  #1295-D: Deprecated declaration adc_test - give arg types
+  void adc_test();
+Source\led16x16.c: 1 warning, 0 errors
+compiling Dotled.c...
+.\Include\led16x16.h(15): warning:  #1295-D: Deprecated declaration adc_test - give arg types
+  void adc_test();
+Source\Dotled.c: 1 warning, 0 errors
+compiling 2410lib.c...
+compiling lcdlib.c...
+compiling color_lcd_test.c...
+.\Include\led16x16.h(15): warning:  #1295-D: Deprecated declaration adc_test - give arg types
+  void adc_test();
+Source\color_lcd_test.c(262): warning:  #177-D: variable "pDisp" was declared but never referenced
+  	UINT8T *pDisp = (UINT8T*)LCD_ACTIVE_BUFFER;
+Source\color_lcd_test.c(319): warning:  #223-D: function "abs" declared implicitly
+  	usDx = abs(usX0 - usX1);
+Source\color_lcd_test.c(487): warning:  #177-D: variable "y" was declared but never referenced
+   int y=25;
+Source\color_lcd_test.c(488): warning:  #177-D: variable "j" was declared but never referenced
+   int i,j;
+Source\color_lcd_test.c(621): warning:  #223-D: function "sprintf" declared implicitly
+  		sprintf(a,"%0.3f",usEndData);
+Source\color_lcd_test.c(551): warning:  #550-D: variable "x1" was set but never used
+   double x1,y1;
+Source\color_lcd_test.c(551): warning:  #550-D: variable "y1" was set but never used
+   double x1,y1;
+Source\color_lcd_test.c: 8 warnings, 0 errors
+compiling lcd.c...
+compiling hzk24.c...
+compiling hzk24s.c...
+linking...
+Program Size: Code=41148 RO-data=570776 RW-data=1900 ZI-data=61364  
+".\SDRAM\LCD_Test.axf" - 0 Error(s), 11 Warning(s).
+Build Time Elapsed:  00:00:01
+</pre>
+</body>
+</html>

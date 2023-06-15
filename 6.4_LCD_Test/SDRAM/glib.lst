@@ -1,0 +1,1206 @@
+L 1 "Source\glib.c"
+N/*********************************************************************************************
+N* File£º	glib.c
+N* Author:	Embest	
+N* Desc£º	LCD_Test
+N* History:	
+N*********************************************************************************************/
+N
+N/*------------------------------------------------------------------------------------------*/
+N/*	 								include files						 				    */
+N/*------------------------------------------------------------------------------------------*/
+N#include "def.h"
+L 1 "..\Common\Inc\def.h" 1
+N/*********************************************************************************************
+N* File name	: 2410lib.h
+N* Author	: embest
+N* Descript	: S3C2410 Example 
+N* History
+N*********************************************************************************************/
+N#ifndef __DEF_H__
+N#define __DEF_H__
+N
+N#define UINT32T unsigned int
+N#define INT32T	int
+N#define UINT16T unsigned short
+N#define INT16T	short int
+N#define UINT8T  unsigned char
+N#define	INT8T  char
+N
+N#define TRUE 	1
+N#define FALSE 	0
+N#define OK		1
+N#define FAIL	0
+N#define FileEnd	1
+N#define	NotEnd	0
+N
+N#define False 0
+N#define True !False
+N
+N// Sets the result on bPort 
+N#define BIT_SET(bPort,bBitMask)        (bPort |= bBitMask)
+N#define BIT_CLR(bPort,bBitMask)        (bPort &= ~bBitMask)
+N
+N// Returns the result
+N#define GET_BIT_SET(bPort,bBitMask)    (bPort | bBitMask)
+N#define GET_BIT_CLR(bPort,bBitMask)    (bPort & ~bBitMask)
+N
+N// Returns 0 if the condition is False & a non-zero value if it is True
+N#define TEST_BIT_SET(bPort,bBitMask)   (bPort & bBitMask)
+N#define TEST_BIT_CLR(bPort,bBitMask)   ((~bPort) & bBitMask)
+N
+N#endif /*__DEF_H__*/
+N
+L 12 "Source\glib.c" 2
+N#include "lcdlib.h"
+L 1 ".\Include\lcdlib.h" 1
+N/*********************************************************************************************
+N* File£º	lcdlib.h
+N* Author:	Embest	
+N* Desc£º	header file of lcd lib 
+N* History:	
+N*			Y.J.Guo, Programming modify, April 12, 2005
+N*********************************************************************************************/
+N#ifndef __LCDLIB_H__
+N#define __LCDLIB_H__
+N
+N/*------------------------------------------------------------------------------------------*/
+N/*	 								macro define						 				    */
+N/*------------------------------------------------------------------------------------------*/
+N#define BLACK 0x0
+N#define WHITE 0xffff
+N#define RED 0xf800
+N#define GREEN 0x7e0
+N#define BLUE 0x10
+N#define ALLBLACK ((BLACK << 24) | (BLACK << 16) | (BLACK << 8) | BLACK)
+N#define ALLWHITE ((WHITE << 24)  | (WHITE << 16)  | (WHITE << 8)  | WHITE)
+N#define LIGHTGRAY    0xa0
+N#define DARKGRAY     0x50
+N#define TRANSPARENCY 0xff
+N
+N
+N#define MVAL		(13)
+N#define MVAL_USED 	(0)
+N#define M5D(n) ((n) & 0x1fffff)                                 // To get lower 21bits
+N#define GUISWAP(a, b){a^=b; b^=a; a^=b;}
+N
+N//STN LCD Panel(320*240)
+N#define MODE_STN_1BIT 	(0x1001)
+N#define MODE_STN_2BIT  	(0x1002)
+N#define MODE_STN_4BIT  	(0x1004)
+N//Color STN LCD Panel(320*240)
+N#define MODE_CSTN_8BIT   (0x2001)
+N#define MODE_CSTN_12BIT (0x2002)
+N//TFT LCD Panel(240*320)
+N#define MODE_TFT_1BIT_240320     (0x4101)
+N#define MODE_TFT_8BIT_240320 	 (0x4102)
+N#define MODE_TFT_16BIT_240320    (0x4104)
+N//TFT LCD Panel(640*480)
+N#define MODE_TFT_1BIT_640480     (0x4201)
+N#define MODE_TFT_8BIT_640480     (0x4202)
+N#define MODE_TFT_16BIT_640480    (0x4204)
+N#define MODE_TFT_16BIT_800480    (0x4208)
+N#define MODE_TFT_24BIT_640480    (0x42016)
+N//TFT LCD Panel(800*600)
+N#define MODE_TFT_1BIT_800600     (0x4401)
+N#define MODE_TFT_8BIT_800600     (0x4402)
+N#define MODE_TFT_16BIT_800600    (0x4404)
+N
+N//STN
+N#define LCD_XSIZE_STN 	(320)
+N#define LCD_YSIZE_STN 	(240)
+N//Color STN
+N#define LCD_XSIZE_CSTN 	(320)
+N#define LCD_YSIZE_CSTN 	(240)
+N//TFT 240320
+N#define LCD_XSIZE_TFT_240320 	(240)	
+N#define LCD_YSIZE_TFT_240320 	(320)
+N//TFT 640480
+N#define LCD_XSIZE_TFT_640480 	(640)	
+N#define LCD_YSIZE_TFT_640480 	(480)
+N//TFT 800480
+N#define LCD_XSIZE_TFT_800480 	(800)	
+N#define LCD_YSIZE_TFT_800480 	(480)
+N//TFT 800600
+N#define LCD_XSIZE_TFT_800600 	(800)	
+N#define LCD_YSIZE_TFT_800600 	(600)
+N//STN
+N#define SCR_XSIZE_STN 	(LCD_XSIZE_STN*2)                       //for virtual screen  
+N#define SCR_YSIZE_STN 	(LCD_YSIZE_STN*2)
+N//Color STN
+N#define SCR_XSIZE_CSTN 	(LCD_XSIZE_CSTN*2)        				//for virtual screen  
+N#define SCR_YSIZE_CSTN 	(LCD_YSIZE_CSTN*2)
+N//TFT 240320
+N#define SCR_XSIZE_TFT_240320 	(LCD_XSIZE_TFT_240320*2)
+N#define SCR_YSIZE_TFT_240320 	(LCD_YSIZE_TFT_240320*2)
+N//TFT 640480
+N#define SCR_XSIZE_TFT_640480 	(LCD_XSIZE_TFT_640480*2)
+N#define SCR_YSIZE_TFT_640480 	(LCD_YSIZE_TFT_640480*2)
+N//TFT 800480
+N#define SCR_XSIZE_TFT_800480 	(LCD_XSIZE_TFT_800480*2)
+N#define SCR_YSIZE_TFT_800480 	(LCD_YSIZE_TFT_800480*2)
+N//TFT 800600
+N#define SCR_XSIZE_TFT_800600 	(LCD_XSIZE_TFT_800600*2)
+N#define SCR_YSIZE_TFT_800600 	(LCD_YSIZE_TFT_800600*2)
+N
+N//STN
+N#define HOZVAL_STN		(LCD_XSIZE_STN/4-1)	                    // Valid VD data line number is 4.
+N#define LINEVAL_STN		(LCD_YSIZE_STN-1)
+N//Color STN
+N#define HOZVAL_CSTN		(LCD_XSIZE_CSTN*3/8-1)	                // Valid VD data line number is 8.
+N#define LINEVAL_CSTN		(LCD_YSIZE_CSTN-1)
+N//TFT240320
+N#define HOZVAL_TFT_240320	(LCD_XSIZE_TFT_240320-1)
+N#define LINEVAL_TFT_240320	(LCD_YSIZE_TFT_240320-1)
+N//TFT640480
+N#define HOZVAL_TFT_640480	(LCD_XSIZE_TFT_640480-1)
+N#define LINEVAL_TFT_640480	(LCD_YSIZE_TFT_640480-1)
+N//TFT800480
+N#define HOZVAL_TFT_800480	(LCD_XSIZE_TFT_800480-1)
+N#define LINEVAL_TFT_800480	(LCD_YSIZE_TFT_800480-1)
+N//TFT800600
+N#define HOZVAL_TFT_800600	(LCD_XSIZE_TFT_800600-1)
+N#define LINEVAL_TFT_800600	(LCD_YSIZE_TFT_800600-1)
+N
+N//STN
+N#define WLH_STN	    		(0)
+N#define WDLY_STN		(0)
+N#define LINEBLANK_MONO		(1 &0xff)                           // MONO timing parameter for CPT CLS-040S-C3M(CHUNGHWA)
+N#define LINEBLANK_GRAY		(13 &0xff)                          // GRAY timing parameter for CPT CLS-040S-C3M(CHUNGHWA)
+N//CSTN timing parameter for LCBHBT161M(NANYA)
+N#define WLH_CSTN	        (0)
+N#define WDLY_CSTN		(0)
+N#define LINEBLANK_CSTN		(16 &0xff)
+N//Timing parameter for LTS350Q1(SAMSUNG) 
+N#define VBPD_240320		((2-1)&0xff)
+N#define VFPD_240320		((3-1)&0xff)
+N#define VSPW_240320		((2-1) &0x3f)
+N#define HBPD_240320		((7-1)&0x7f)
+N#define HFPD_240320		((3-1)&0xff)
+N#define HSPW_240320		((4-1)&0xff)
+N//Timing parameter for V16C6448AB(PRIME VIEW) 
+N#define VBPD_640480		((33-1)&0xff)
+N#define VFPD_640480		((10-1)&0xff)
+N#define VSPW_640480		((2-1) &0x3f)
+N#define HBPD_640480		((48-1)&0x7f)
+N#define HFPD_640480		((16-1)&0xff)
+N#define HSPW_640480		((96-1)&0xff)
+N
+N#define VBPD_800480		((15)&0xff)//
+N#define VFPD_800480		((15)&0xff)//
+N#define VSPW_800480		((30) &0x3f)//
+N#define HBPD_800480		((30)&0x7f)//
+N#define HFPD_800480		((70)&0xff)//
+N#define HSPW_800480		((100)&0xff)//
+N
+N//Timing parameter for LP104S5-B2AP(LGPHILIPS) 
+N#define VBPD_800600        	((2-1)&0xff)
+N#define VFPD_800600		((3-1)&0xff)
+N#define VSPW_800600		((1-1) &0x3f)
+N#define HBPD_800600		((30-1)&0x7f)
+N#define HFPD_800600		((30-1)&0xff)
+N#define HSPW_800600		((12-1)&0xff)
+N
+N
+N#define CLKVAL_STN_MONO		(20) 	
+N    // 64hz @50Mhz,WLH=16hclk,WDLY=16hclk,LINEBLANK=1*8hclk,VD=4 
+N#define CLKVAL_STN_GRAY		(10) 	
+N    // 120hz @50Mhz,WLH=16hclk,WDLY=16hclk,LINEBLANK=13*8hclk,VD=4 
+N#define CLKVAL_CSTN		(6) 	
+N    // 130hz @50Mhz,WLH=16hclk,WDLY=16hclk,LINEBLANK=16*8hclk,VD=8  
+N#define CLKVAL_TFT_240320	(4) 	
+N    // 60hz @50Mhz
+N    //VSYNC,HSYNC should be inverted
+N    //HBPD=6VCLK,HFPD=2VCLK,HSPW=3VCLK
+N    //VBPD=1HSYNC,VFPD=2HSYNC,VSPW=1HSYNC
+N#define CLKVAL_TFT_640480 	(1)
+N    //53.5hz @90Mhz
+N    //VSYNC,HSYNC should be inverted
+N    //HBPD=47VCLK,HFPD=15VCLK,HSPW=95VCLK
+N    //VBPD=32HSYNC,VFPD=9HSYNC,VSPW=1HSYNC
+N#define CLKVAL_TFT_800480 	(0)
+N#define CLKVAL_TFT_800600 	(0)
+N    //85hz @90Mhz
+N    //71hz @76Mhz
+N    //VSYNC,HSYNC should be inverted
+N    //HBPD=29VCLK,HFPD=29VCLK,HSPW=11VCLK
+N    //VBPD=1HSYNC,VFPD=2HSYNC,VSPW=0HSYNC
+N#define LCDFRAMEBUFFER 0x31000000 //_NONCACHE_STARTADDRESS 
+N    // 1. The LCD frame buffer should be write-through or non-cachable.
+N    // 2. The total frame memory should be inside 4MB.
+N    // 3. To meet above 2 conditions, the frame buffer should be 
+N    // inside the following regions.
+N    // 0x31000000~0x313ffffff,
+N    // 0x31400000~0x317ffffff,
+N    // 0x31800000~0x31bffffff,
+N    //        .....    
+N    // 0x33800000~0x33bffffff                
+N
+N/*------------------------------------------------------------------------------------------*/
+N/*	 								external variables					 				    */
+N/*------------------------------------------------------------------------------------------*/
+N//Mono
+Nextern UINT32T (*frameBuffer1Bit)[SCR_XSIZE_STN/32];
+Xextern unsigned int (*frameBuffer1Bit)[((320)*2)/32];
+N//Gray
+Nextern UINT32T (*frameBuffer2Bit)[SCR_XSIZE_STN/16];
+Xextern unsigned int (*frameBuffer2Bit)[((320)*2)/16];
+Nextern UINT32T (*frameBuffer4Bit)[SCR_XSIZE_STN/8];
+Xextern unsigned int (*frameBuffer4Bit)[((320)*2)/8];
+N//Color STN
+Nextern UINT32T (*frameBuffer8Bit)[SCR_XSIZE_CSTN/4];
+Xextern unsigned int (*frameBuffer8Bit)[((320)*2)/4];
+Nextern UINT32T (*frameBuffer12Bit)[SCR_XSIZE_CSTN*3/8];             // The least common multiple (between 12 and 32) is 96
+Xextern unsigned int (*frameBuffer12Bit)[((320)*2)*3/8];             
+N//TFT 240320
+Nextern UINT32T (*frameBuffer8BitTft240320)[SCR_XSIZE_TFT_240320/4];
+Xextern unsigned int (*frameBuffer8BitTft240320)[((240)*2)/4];
+Nextern UINT32T (*frameBuffer16BitTft240320)[SCR_XSIZE_TFT_240320/2];
+Xextern unsigned int (*frameBuffer16BitTft240320)[((240)*2)/2];
+N//TFT 640480
+Nextern UINT32T (*frameBuffer1BitTft640480)[SCR_XSIZE_TFT_640480/32];
+Xextern unsigned int (*frameBuffer1BitTft640480)[((640)*2)/32];
+Nextern UINT32T (*frameBuffer8BitTft640480)[SCR_XSIZE_TFT_640480/4];
+Xextern unsigned int (*frameBuffer8BitTft640480)[((640)*2)/4];
+Nextern UINT32T (*frameBuffer16BitTft640480)[SCR_XSIZE_TFT_640480/2];
+Xextern unsigned int (*frameBuffer16BitTft640480)[((640)*2)/2];
+Nextern UINT32T (*frameBuffer16BitTft800480)[SCR_XSIZE_TFT_800480/2];
+Xextern unsigned int (*frameBuffer16BitTft800480)[((800)*2)/2];
+Nextern UINT32T (*frameBuffer24BitTft640480)[SCR_XSIZE_TFT_640480];  // Unpacked 24bit 
+Xextern unsigned int (*frameBuffer24BitTft640480)[((640)*2)];  
+N//TFT 800600
+Nextern UINT32T (*frameBuffer1BitTft800600)[SCR_XSIZE_TFT_800600/32];
+Xextern unsigned int (*frameBuffer1BitTft800600)[((800)*2)/32];
+Nextern UINT32T (*frameBuffer8BitTft800600)[SCR_XSIZE_TFT_800600/4];
+Xextern unsigned int (*frameBuffer8BitTft800600)[((800)*2)/4];
+Nextern UINT32T (*frameBuffer16BitTft800600)[SCR_XSIZE_TFT_800600/2];
+Xextern unsigned int (*frameBuffer16BitTft800600)[((800)*2)/2];
+N
+N/*------------------------------------------------------------------------------------------*/
+N/*	 								function declare                                        */
+N/*------------------------------------------------------------------------------------------*/
+Nvoid Lcd_Init(int type);
+Nvoid MoveViewPort(int);
+Nvoid Lcd_CstnOnOff(int onoff);
+Nvoid Lcd_EnvidOnOff(int onoff);
+Nvoid Lcd_PowerEnable(int invpwren,int pwren);
+Nvoid Lcd_MoveViewPort(int vx,int vy,int type);
+Nvoid Lcd_Lpc3600Enable(void);
+N
+N
+N#endif                                                          //__LCDLIB_H__
+L 13 "Source\glib.c" 2
+N#include "glib.h"
+L 1 ".\Include\glib.h" 1
+N/*********************************************************************************************
+N* File£º	glib.h
+N* Author:	Embest	
+N* Desc£º	header file of general lib
+N* History:	
+N*			Y.J.Guo, Programming modify, April 12, 2005
+N*********************************************************************************************/
+N#ifndef __GLIB_H__
+N#define __GLIB_H__
+N
+N/*------------------------------------------------------------------------------------------*/
+N/*	 								functions declare						                */
+N/*------------------------------------------------------------------------------------------*/
+Nvoid Glib_Init(int type);                                       
+N
+Nvoid Glib_Line(int x1,int y1,int x2,int y2,int color);          
+Nvoid Glib_Rectangle(int x1,int y1,int x2,int y2,int color);
+Nvoid Glib_FilledRectangle(int x1,int y1,int x2,int y2,int color);
+Nvoid Glib_ClearScr(UINT32T c,int type);
+Xvoid Glib_ClearScr(unsigned int c,int type);
+N
+Nvoid _PutStn1Bit(UINT32T x,UINT32T y,UINT32T c);
+Xvoid _PutStn1Bit(unsigned int x,unsigned int y,unsigned int c);
+Nvoid _PutStn2Bit(UINT32T x,UINT32T y,UINT32T c);
+Xvoid _PutStn2Bit(unsigned int x,unsigned int y,unsigned int c);
+Nvoid _PutStn4Bit(UINT32T x,UINT32T y,UINT32T c);
+Xvoid _PutStn4Bit(unsigned int x,unsigned int y,unsigned int c);
+Nvoid _PutCstn8Bit(UINT32T x,UINT32T y,UINT32T c);
+Xvoid _PutCstn8Bit(unsigned int x,unsigned int y,unsigned int c);
+Nvoid _PutCstn12Bit(UINT32T x,UINT32T y,UINT32T c);
+Xvoid _PutCstn12Bit(unsigned int x,unsigned int y,unsigned int c);
+Nvoid _PutTft8Bit_240320(UINT32T x,UINT32T y,UINT32T c);
+Xvoid _PutTft8Bit_240320(unsigned int x,unsigned int y,unsigned int c);
+Nvoid _PutTft16Bit_240320(UINT32T x,UINT32T y,UINT32T c);
+Xvoid _PutTft16Bit_240320(unsigned int x,unsigned int y,unsigned int c);
+Nvoid _PutTft1Bit_640480(UINT32T x,UINT32T y,UINT32T c);
+Xvoid _PutTft1Bit_640480(unsigned int x,unsigned int y,unsigned int c);
+Nvoid _PutTft8Bit_640480(UINT32T x,UINT32T y,UINT32T c);
+Xvoid _PutTft8Bit_640480(unsigned int x,unsigned int y,unsigned int c);
+Nvoid _PutTft16Bit_640480(UINT32T x,UINT32T y,UINT32T c);
+Xvoid _PutTft16Bit_640480(unsigned int x,unsigned int y,unsigned int c);
+Nvoid _PutTft16Bit_800480(UINT32T x,UINT32T y,UINT32T c);
+Xvoid _PutTft16Bit_800480(unsigned int x,unsigned int y,unsigned int c);
+Nvoid _PutTft24Bit_640480(UINT32T x,UINT32T y,UINT32T c);
+Xvoid _PutTft24Bit_640480(unsigned int x,unsigned int y,unsigned int c);
+Nvoid _PutTft1Bit_800600(UINT32T x,UINT32T y,UINT32T c);
+Xvoid _PutTft1Bit_800600(unsigned int x,unsigned int y,unsigned int c);
+Nvoid _PutTft8Bit_800600(UINT32T x,UINT32T y,UINT32T c);
+Xvoid _PutTft8Bit_800600(unsigned int x,unsigned int y,unsigned int c);
+Nvoid _PutTft16Bit_800600(UINT32T x,UINT32T y,UINT32T c);
+Xvoid _PutTft16Bit_800600(unsigned int x,unsigned int y,unsigned int c);
+N
+N//add by Y.J.GUO April 13,2005
+Nvoid BitmapViewStn1Bit(UINT8T *pBuffer);
+Xvoid BitmapViewStn1Bit(unsigned char *pBuffer);
+Nvoid BitmapViewStn2Bit(UINT8T *pBuffer);
+Xvoid BitmapViewStn2Bit(unsigned char *pBuffer);
+Nvoid BitmapViewStn4Bit(UINT8T *pBuffer);
+Xvoid BitmapViewStn4Bit(unsigned char *pBuffer);
+Nvoid BitmapViewCstn8Bit(UINT8T *pBuffer);
+Xvoid BitmapViewCstn8Bit(unsigned char *pBuffer);
+Nvoid BitmapViewCstn12Bit(UINT8T *pBuffer);
+Xvoid BitmapViewCstn12Bit(unsigned char *pBuffer);
+Nvoid BitmapViewTft8Bit_240320(UINT8T *pBuffer);
+Xvoid BitmapViewTft8Bit_240320(unsigned char *pBuffer);
+Nvoid BitmapViewTft16Bit_240320(UINT8T *pBuffer);
+Xvoid BitmapViewTft16Bit_240320(unsigned char *pBuffer);
+Nvoid BitmapViewTft1Bit_640480(UINT8T *pBuffer);
+Xvoid BitmapViewTft1Bit_640480(unsigned char *pBuffer);
+Nvoid BitmapViewTft8Bit_640480(UINT8T *pBuffer);
+Xvoid BitmapViewTft8Bit_640480(unsigned char *pBuffer);
+Nvoid BitmapViewTft16Bit_640480(UINT8T *pBuffer);
+Xvoid BitmapViewTft16Bit_640480(unsigned char *pBuffer);
+Nvoid BitmapViewTft16Bit_800480(UINT8T *pBuffer);
+Xvoid BitmapViewTft16Bit_800480(unsigned char *pBuffer);
+Nvoid BitmapViewTft24Bit_640480(UINT8T *pBuffer);
+Xvoid BitmapViewTft24Bit_640480(unsigned char *pBuffer);
+Nvoid BitmapViewTft1Bit_800600(UINT8T *pBuffer);
+Xvoid BitmapViewTft1Bit_800600(unsigned char *pBuffer);
+Nvoid BitmapViewTft8Bit_800600(UINT8T *pBuffer);
+Xvoid BitmapViewTft8Bit_800600(unsigned char *pBuffer);
+Nvoid BitmapViewTft16Bit_800600(UINT8T *pBuffer);
+Xvoid BitmapViewTft16Bit_800600(unsigned char *pBuffer);
+N
+N/*------------------------------------------------------------------------------------------*/
+N/*	 								extern functions declare                                */
+N/*------------------------------------------------------------------------------------------*/
+Nextern void (*PutPixel)(UINT32T,UINT32T,UINT32T);
+Xextern void (*PutPixel)(unsigned int,unsigned int,unsigned int);
+Nextern void (*BitmapView)(UINT8T *pBuffer);
+Xextern void (*BitmapView)(unsigned char *pBuffer);
+N
+N#endif                                                          //__GLIB_H__
+L 14 "Source\glib.c" 2
+N#include "lcd.h"
+L 1 ".\Include\lcd.h" 1
+N/*********************************************************************************************
+N* File£º	lcd.h
+N* Author:	Embest	
+N* Desc£º	header file of lcd 
+N* History:	
+N*			Y.J.Guo, Programming modify, April 12, 2005
+N*********************************************************************************************/
+N#ifndef __LCD_H__
+N#define __LCD_H__
+N
+N/*------------------------------------------------------------------------------------------*/
+N/*	 								function declare                                        */
+N/*------------------------------------------------------------------------------------------*/
+Nvoid Test_Lcd_Stn_1Bit(void);
+Nvoid Test_Lcd_Stn_2Bit(void);
+Nvoid Test_Lcd_Stn_4Bit(void);
+Nvoid Test_Lcd_Cstn_8Bit(void);
+Nvoid Test_Lcd_Cstn_12Bit(void);
+Nvoid Test_Lcd_Cstn_8Bit_On(void);
+Nvoid Test_Lcd_Tft_8Bit_240320(void);
+Nvoid Test_Lcd_Tft_8Bit_240320_On(void);
+Nvoid Test_Lcd_Tft_16Bit_240320(void);
+Nvoid Test_Lcd_Tft_1Bit_640480(void);
+Nvoid Test_Lcd_Tft_8Bit_640480(void);
+Nvoid Test_Lcd_Tft_16Bit_640480(void);
+Nvoid Test_Lcd_Tft_24Bit_640480(void);
+Nvoid Test_Lcd_Tft_8Bit_640480_Palette(void);
+Nvoid Test_Lcd_Tft_8Bit_640480_Bswp(void);
+Nvoid Test_Lcd_Tft_16Bit_640480_Hwswp(void);
+Nvoid Test_Lcd_Tft_16Bit_640480_Bmp(void);
+Nvoid Test_Lcd_Tft_1Bit_800600(void);
+Nvoid Test_Lcd_Tft_8Bit_800600(void);
+Nvoid Test_Lcd_Tft_16Bit_800600(void);
+N
+N#endif                                                          //__LCD_H__
+L 15 "Source\glib.c" 2
+N
+N/*------------------------------------------------------------------------------------------*/
+N/*	 								functions declare                                       */
+N/*------------------------------------------------------------------------------------------*/
+Nvoid (*PutPixel)(UINT32T,UINT32T,UINT32T);
+Xvoid (*PutPixel)(unsigned int,unsigned int,unsigned int);
+Nvoid (*BitmapView)(UINT8T *pBuffer);
+Xvoid (*BitmapView)(unsigned char *pBuffer);
+N
+N/*********************************************************************************************
+N* name:		Glib_Init()
+N* func:		Glib initialization
+N* para:		type    --  lcd display mode
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid Glib_Init(int type)
+N{
+N    switch(type)
+N    {
+N	    case MODE_STN_1BIT:
+X	    case (0x1001):
+N	    	PutPixel=_PutStn1Bit;
+N	    	BitmapView=BitmapViewStn1Bit;
+N	    	break;
+N	    case MODE_STN_2BIT:
+X	    case (0x1002):
+N	       	PutPixel=_PutStn2Bit;
+N	       	BitmapView=BitmapViewStn2Bit;
+N	       	break;
+N	    case MODE_STN_4BIT:
+X	    case (0x1004):
+N	        PutPixel=_PutStn4Bit;
+N	        BitmapView=BitmapViewStn4Bit;
+N	        break;
+N	    case MODE_CSTN_8BIT:
+X	    case (0x2001):
+N	    	PutPixel=_PutCstn8Bit;
+N	    	BitmapView=BitmapViewCstn8Bit;
+N	    	break;   
+N	    case MODE_CSTN_12BIT:
+X	    case (0x2002):
+N	    	PutPixel=_PutCstn12Bit;
+N	    	BitmapView=BitmapViewCstn12Bit;
+N	    	break;   
+N	    case MODE_TFT_8BIT_240320:
+X	    case (0x4102):
+N	    	PutPixel=_PutTft8Bit_240320;
+N	    	BitmapView=BitmapViewTft8Bit_240320;  	
+N	    	break;   
+N	    case MODE_TFT_16BIT_240320:
+X	    case (0x4104):
+N	    	PutPixel=_PutTft16Bit_240320;
+N	    	BitmapView=BitmapViewTft16Bit_240320;  	
+N	    	break;   
+N	    case MODE_TFT_1BIT_640480:
+X	    case (0x4201):
+N	    	PutPixel=_PutTft1Bit_640480;
+N	    	BitmapView=BitmapViewTft1Bit_640480;
+N	    	break;   
+N	    case MODE_TFT_8BIT_640480:
+X	    case (0x4202):
+N	    	PutPixel=_PutTft8Bit_640480;
+N	    	BitmapView=BitmapViewTft8Bit_640480;
+N	    	break;   
+N	    case MODE_TFT_16BIT_640480:
+X	    case (0x4204):
+N	    	PutPixel=_PutTft16Bit_640480;
+N	    	BitmapView=BitmapViewTft16Bit_640480;
+N	    	break;   
+N		case MODE_TFT_16BIT_800480:
+X		case (0x4208):
+N	    	PutPixel=_PutTft16Bit_800480;
+N	    	BitmapView=BitmapViewTft16Bit_800480;
+N	    	break;   
+N	    case MODE_TFT_24BIT_640480:
+X	    case (0x42016):
+N	    	PutPixel=_PutTft24Bit_640480;
+N	    	BitmapView=BitmapViewTft24Bit_640480;
+N	    	break;   
+N	    case MODE_TFT_1BIT_800600:
+X	    case (0x4401):
+N	    	PutPixel=_PutTft1Bit_800600;
+N	    	BitmapView=BitmapViewTft1Bit_800600;
+N	    	break;   
+N	    case MODE_TFT_8BIT_800600:
+X	    case (0x4402):
+N	    	PutPixel=_PutTft8Bit_800600;
+N	    	BitmapView=BitmapViewTft8Bit_800600;
+N	    	break;   
+N	    case MODE_TFT_16BIT_800600:
+X	    case (0x4404):
+N	    	PutPixel=_PutTft16Bit_800600;
+N	    	BitmapView=BitmapViewTft16Bit_800600;
+N	    	break;   
+N	    default: 
+N	    	break;
+N   }
+N}
+N
+N/*********************************************************************************************
+N* name:		_PutStn1Bit()
+N* func:		put pixel to 1bpp stn
+N* para:		UINT32T x   --  x coordinate
+N*           UINT32T y   --  y coordinate
+N*           UINT32T c   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid _PutStn1Bit(UINT32T x,UINT32T y,UINT32T c)
+Xvoid _PutStn1Bit(unsigned int x,unsigned int y,unsigned int c)
+N{
+N    if(x<SCR_XSIZE_STN&& y<SCR_YSIZE_STN)
+X    if(x<((320)*2)&& y<((240)*2))
+N	frameBuffer1Bit[(y)][(x)/32]=( frameBuffer1Bit[(y)][(x)/32]
+N	& ~(0x80000000>>((x)%32)*1) ) | ( (c&0x00000001)<< ((32-1-((x)%32))*1) );
+N}
+N
+N/*********************************************************************************************
+N* name:		_PutStn2Bit()
+N* func:		put pixel to 2bpp stn
+N* para:		UINT32T x   --  x coordinate
+N*           UINT32T y   --  y coordinate
+N*           UINT32T c   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid _PutStn2Bit(UINT32T x,UINT32T y,UINT32T c)
+Xvoid _PutStn2Bit(unsigned int x,unsigned int y,unsigned int c)
+N{
+N    if(x<SCR_XSIZE_STN&& y<SCR_YSIZE_STN)
+X    if(x<((320)*2)&& y<((240)*2))
+N        frameBuffer2Bit[(y)][(x)/16]=( frameBuffer2Bit[(y)][x/16]
+N	& ~(0xc0000000>>((x)%16)*2) ) | ( (c&0x00000003)<<((16-1-((x)%16))*2) );
+N}
+N
+N/*********************************************************************************************
+N* name:		_PutStn4Bit()
+N* func:		put pixel to 4bpp stn
+N* para:		UINT32T x   --  x coordinate
+N*           UINT32T y   --  y coordinate
+N*           UINT32T c   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid _PutStn4Bit(UINT32T x,UINT32T y,UINT32T c)
+Xvoid _PutStn4Bit(unsigned int x,unsigned int y,unsigned int c)
+N{
+N    if(x<SCR_XSIZE_STN&& y<SCR_YSIZE_STN)
+X    if(x<((320)*2)&& y<((240)*2))
+N        frameBuffer4Bit[(y)][(x)/8]=( frameBuffer4Bit[(y)][x/8]
+N	& ~(0xf0000000>>((x)%8)*4) ) | ( (c&0x0000000f)<<((8-1-((x)%8))*4) );
+N}
+N
+N/*********************************************************************************************
+N* name:		_PutCstn8Bit()
+N* func:		put pixel to 8bpp color stn
+N* para:		UINT32T x   --  x coordinate
+N*           UINT32T y   --  y coordinate
+N*           UINT32T c   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid _PutCstn8Bit(UINT32T x,UINT32T y,UINT32T c)
+Xvoid _PutCstn8Bit(unsigned int x,unsigned int y,unsigned int c)
+N{
+N    if(x<SCR_XSIZE_CSTN&& y<SCR_YSIZE_CSTN)
+X    if(x<((320)*2)&& y<((240)*2))
+N        frameBuffer8Bit[(y)][(x)/4]=( frameBuffer8Bit[(y)][x/4]
+N	    & ~(0xff000000>>((x)%4)*8) ) | ( (c&0x000000ff)<<((4-1-((x)%4))*8) );
+N}
+N
+N/*********************************************************************************************
+N* name:		_PutCstn12Bit()
+N* func:		put pixel to 12bpp color stn
+N* para:		UINT32T x   --  x coordinate
+N*           UINT32T y   --  y coordinate
+N*           UINT32T c   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid _PutCstn12Bit(UINT32T x,UINT32T y,UINT32T c)
+Xvoid _PutCstn12Bit(unsigned int x,unsigned int y,unsigned int c)
+N{
+N    UINT32T z;
+X    unsigned int z;
+N    z=((x)%8);
+N    if(x<SCR_XSIZE_CSTN&& y<SCR_YSIZE_CSTN)
+X    if(x<((320)*2)&& y<((240)*2))
+N    {
+N
+N        if((z%3)!=2)
+N            frameBuffer12Bit[(y)][(x)*3/8]=
+N            ( frameBuffer12Bit[(y)][(x)*3/8] & ~(0xfff00000>>(((z/3)*4)+((z)%3)*12) )
+N		| ( (c&0xfff)<<(20-(((z/3)*4)+((z)%3)*12))) );
+N        else
+N        {
+N            if(z==2)
+N            {
+N                frameBuffer12Bit[(y)][(x)*3/8]=( (frameBuffer12Bit[(y)][(x)*3/8]
+N                								& ~(0xff)) | ((c&0xff0)>>4)  ); 
+N                frameBuffer12Bit[(y)][((x)*3/8)+1]=( (frameBuffer12Bit[(y)][((x)*3/8)+1]
+N		    										& ~(0xf0000000)) | ((c&0xf)<<28)  );
+N           }   
+N            else if(z==5)
+N            {
+N                frameBuffer12Bit[(y)][(x)*3/8]=( (frameBuffer12Bit[(y)][(x)*3/8]
+N	            & ~(0xf)) | ((c&0xf00)>>8)  );
+N                frameBuffer12Bit[(y)][((x)*3/8)+1]=( (frameBuffer12Bit[(y)][((x)*3/8)+1]
+N	            & ~(0xff000000)) | ((c&0xff)<<24)  );
+N           }   
+N       }
+N   }
+N}
+N
+N/*********************************************************************************************
+N* name:		_PutTft8Bit_240320()
+N* func:		put pixel to 8bpp 240*320 TFT
+N* para:		UINT32T x   --  x coordinate
+N*           UINT32T y   --  y coordinate
+N*           UINT32T c   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid _PutTft8Bit_240320(UINT32T x,UINT32T y,UINT32T c)
+Xvoid _PutTft8Bit_240320(unsigned int x,unsigned int y,unsigned int c)
+N{
+N    if(x<SCR_XSIZE_TFT_240320 && y<SCR_YSIZE_TFT_240320)
+X    if(x<((240)*2) && y<((320)*2))
+N        frameBuffer8BitTft240320[(y)][(x)/4]=( frameBuffer8BitTft240320[(y)][x/4]
+N        & ~(0xff000000>>((x)%4)*8) ) | ( (c&0x000000ff)<<((4-1-((x)%4))*8) );
+N}
+N
+N/*********************************************************************************************
+N* name:		_PutTft16Bit_240320()
+N* func:		put pixel to 16bpp 240*320 TFT
+N* para:		UINT32T x   --  x coordinate
+N*           UINT32T y   --  y coordinate
+N*           UINT32T c   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid _PutTft16Bit_240320(UINT32T x,UINT32T y,UINT32T c)
+Xvoid _PutTft16Bit_240320(unsigned int x,unsigned int y,unsigned int c)
+N{
+N    if(x<SCR_XSIZE_TFT_240320 && y<SCR_YSIZE_TFT_240320)
+X    if(x<((240)*2) && y<((320)*2))
+N        frameBuffer16BitTft240320[(y)][(x)/2]=( frameBuffer16BitTft240320[(y)][x/2]
+N        & ~(0xffff0000>>((x)%2)*16) ) | ( (c&0x0000ffff)<<((2-1-((x)%2))*16) );
+N}
+N
+N/*********************************************************************************************
+N* name:		_PutTft1Bit_640480()
+N* func:		put pixel to 1bpp 640*480 TFT
+N* para:		UINT32T x   --  x coordinate
+N*           UINT32T y   --  y coordinate
+N*           UINT32T c   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid _PutTft1Bit_640480(UINT32T x,UINT32T y,UINT32T c)
+Xvoid _PutTft1Bit_640480(unsigned int x,unsigned int y,unsigned int c)
+N{
+N    if(x<SCR_XSIZE_TFT_640480 && y<SCR_YSIZE_TFT_640480)
+X    if(x<((640)*2) && y<((480)*2))
+N        frameBuffer1BitTft640480[(y)][(x)/32]=( frameBuffer1BitTft640480[(y)][x/32]
+N	& ~(0x80000000>>((x)%32)*1) ) | ( (c&0x00000001)<< ((32-1-((x)%32))*1) );
+N}
+N
+N/*********************************************************************************************
+N* name:		_PutTft8Bit_640480()
+N* func:		put pixel to 8bpp 640*480 TFT
+N* para:		UINT32T x   --  x coordinate
+N*           UINT32T y   --  y coordinate
+N*           UINT32T c   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid _PutTft8Bit_640480(UINT32T x,UINT32T y,UINT32T c)
+Xvoid _PutTft8Bit_640480(unsigned int x,unsigned int y,unsigned int c)
+N{
+N    if(x<SCR_XSIZE_TFT_640480 && y<SCR_YSIZE_TFT_640480)
+X    if(x<((640)*2) && y<((480)*2))
+N        frameBuffer8BitTft640480[(y)][(x)/4]=( frameBuffer8BitTft640480[(y)][x/4]
+N        & ~(0xff000000>>((x)%4)*8) ) | ( (c&0x000000ff)<<((4-1-((x)%4))*8) );
+N}
+N
+N/*********************************************************************************************
+N* name:		_PutTft16Bit_640480()
+N* func:		put pixel to 16bpp 640*480 TFT
+N* para:		UINT32T x   --  x coordinate
+N*           UINT32T y   --  y coordinate
+N*           UINT32T c   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid _PutTft16Bit_640480(UINT32T x,UINT32T y,UINT32T c)
+Xvoid _PutTft16Bit_640480(unsigned int x,unsigned int y,unsigned int c)
+N{
+N    if(x<SCR_XSIZE_TFT_640480 && y<SCR_YSIZE_TFT_640480)
+X    if(x<((640)*2) && y<((480)*2))
+N      frameBuffer16BitTft640480[(y)][(x)/2]=( frameBuffer16BitTft640480[(y)][x/2]
+N        & ~(0xffff0000>>((x)%2)*16) ) | ( (c&0x0000ffff)<<((2-1-((x)%2))*16) );				 
+N
+N}
+N
+Nvoid _PutTft16Bit_800480(UINT32T x,UINT32T y,UINT32T c)
+Xvoid _PutTft16Bit_800480(unsigned int x,unsigned int y,unsigned int c)
+N{
+N    if(x<SCR_XSIZE_TFT_800480 && y<SCR_YSIZE_TFT_800480)
+X    if(x<((800)*2) && y<((480)*2))
+N      frameBuffer16BitTft800480[(y)][(x)/2]=( frameBuffer16BitTft800480[(y)][x/2]
+N        & ~(0xffff0000>>((x)%2)*16) ) | ( (c&0x0000ffff)<<((2-1-((x)%2))*16) );				 
+N
+N}
+N
+N/*********************************************************************************************
+N* name:		_PutTft24Bit_640480()
+N* func:		put pixel to 24bpp 640*480 TFT
+N* para:		UINT32T x   --  x coordinate
+N*           UINT32T y   --  y coordinate
+N*           UINT32T c   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid _PutTft24Bit_640480(UINT32T x,UINT32T y,UINT32T c)
+Xvoid _PutTft24Bit_640480(unsigned int x,unsigned int y,unsigned int c)
+N{
+N    if(x<SCR_XSIZE_TFT_640480 && y<SCR_YSIZE_TFT_640480)
+X    if(x<((640)*2) && y<((480)*2))
+N        frameBuffer24BitTft640480[(y)][(x)]=( frameBuffer24BitTft640480[(y)][(x)]
+N        & (0x0) | ( c&0xffffff00)); // | ( c&0x00ffffff)); LSB 
+N}
+N
+N
+N/*********************************************************************************************
+N* name:		_PutTft1Bit_800600()
+N* func:		put pixel to 1bpp 800*600 TFT
+N* para:		UINT32T x   --  x coordinate
+N*           UINT32T y   --  y coordinate
+N*           UINT32T c   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid _PutTft1Bit_800600(UINT32T x,UINT32T y,UINT32T c)
+Xvoid _PutTft1Bit_800600(unsigned int x,unsigned int y,unsigned int c)
+N{
+N    if(x<SCR_XSIZE_TFT_800600 && y<SCR_YSIZE_TFT_800600)
+X    if(x<((800)*2) && y<((600)*2))
+N        frameBuffer1BitTft800600[(y)][(x)/32]=( frameBuffer1BitTft800600[(y)][x/32]
+N	& ~(0x80000000>>((x)%32)*1) ) | ( (c&0x00000001)<< ((32-1-((x)%32))*1) );
+N}
+N
+N
+N/*********************************************************************************************
+N* name:		_PutTft8Bit_800600()
+N* func:		put pixel to 8bpp 800*600 TFT
+N* para:		UINT32T x   --  x coordinate
+N*           UINT32T y   --  y coordinate
+N*           UINT32T c   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid _PutTft8Bit_800600(UINT32T x,UINT32T y,UINT32T c)
+Xvoid _PutTft8Bit_800600(unsigned int x,unsigned int y,unsigned int c)
+N{
+N    if(x<SCR_XSIZE_TFT_800600 && y<SCR_YSIZE_TFT_800600)
+X    if(x<((800)*2) && y<((600)*2))
+N        frameBuffer8BitTft800600[(y)][(x)/4]=( frameBuffer8BitTft800600[(y)][x/4]
+N        & ~(0xff000000>>((x)%4)*8) ) | ( (c&0x000000ff)<<((4-1-((x)%4))*8) );
+N}
+N
+N
+N/*********************************************************************************************
+N* name:		_PutTft16Bit_800600()
+N* func:		put pixel to 16bpp 800*600 TFT
+N* para:		UINT32T x   --  x coordinate
+N*           UINT32T y   --  y coordinate
+N*           UINT32T c   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid _PutTft16Bit_800600(UINT32T x,UINT32T y,UINT32T c)
+Xvoid _PutTft16Bit_800600(unsigned int x,unsigned int y,unsigned int c)
+N{
+N    if(x<SCR_XSIZE_TFT_800600 && y<SCR_YSIZE_TFT_800600)
+X    if(x<((800)*2) && y<((600)*2))
+N        frameBuffer16BitTft800600[(y)][(x)/2]=( frameBuffer16BitTft800600[(y)][x/2]
+N        & ~(0xffff0000>>((x)%2)*16) ) | ( (c&0x0000ffff)<<((2-1-((x)%2))*16) );
+N}
+N
+N//add by Y.J.GUO April 13,2005
+Nvoid BitmapViewStn1Bit(UINT8T *pBuffer)
+Xvoid BitmapViewStn1Bit(unsigned char *pBuffer)
+N{
+N     
+N}
+Nvoid BitmapViewStn2Bit(UINT8T *pBuffer)
+Xvoid BitmapViewStn2Bit(unsigned char *pBuffer)
+N{
+N    
+N}
+Nvoid BitmapViewStn4Bit(UINT8T *pBuffer)
+Xvoid BitmapViewStn4Bit(unsigned char *pBuffer)
+N{
+N
+N}
+N
+N/*********************************************************************************************
+N* name:		BitmapViewCstn8Bit
+N* func:		display a 8bpp bitmap  on 256 color LCD
+N* para:		UINT8T *pBuffer --  bitmap data pointer          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid BitmapViewCstn8Bit(UINT8T *pBuffer)
+Xvoid BitmapViewCstn8Bit(unsigned char *pBuffer)
+N{
+N    UINT32T i, j;
+X    unsigned int i, j;
+N	UINT32T *pView = (UINT32T*)frameBuffer8Bit;
+X	unsigned int *pView = (unsigned int*)frameBuffer8Bit;
+N
+N	for (i = 0; i < SCR_YSIZE_STN; i++)
+X	for (i = 0; i < ((240)*2); i++)
+N	{
+N	    for (j = 0; j < LCD_XSIZE_STN/4; j++)
+X	    for (j = 0; j < (320)/4; j++)
+N	   {
+N		pView[j] = ((*pBuffer) << 24) + ((*(pBuffer+1)) << 16) + ((*(pBuffer+2)) << 8) + (*(pBuffer+3));
+N		pBuffer += 4;
+N	   }
+N	   pView+=SCR_XSIZE_STN/4;
+X	   pView+=((320)*2)/4;
+N	}
+N
+N}
+Nvoid BitmapViewCstn12Bit(UINT8T *pBuffer)
+Xvoid BitmapViewCstn12Bit(unsigned char *pBuffer)
+N{
+N    
+N}
+Nvoid BitmapViewTft8Bit_240320(UINT8T *pBuffer)
+Xvoid BitmapViewTft8Bit_240320(unsigned char *pBuffer)
+N{
+N    
+N}
+Nvoid BitmapViewTft16Bit_240320(UINT8T *pBuffer)
+Xvoid BitmapViewTft16Bit_240320(unsigned char *pBuffer)
+N{
+N    
+N}  	
+Nvoid BitmapViewTft1Bit_640480(UINT8T *pBuffer)
+Xvoid BitmapViewTft1Bit_640480(unsigned char *pBuffer)
+N{
+N    
+N}
+Nvoid BitmapViewTft8Bit_640480(UINT8T *pBuffer)
+Xvoid BitmapViewTft8Bit_640480(unsigned char *pBuffer)
+N{
+N    
+N}
+N
+Nvoid BitmapViewTft16Bit_640480(UINT8T *pBuffer)
+Xvoid BitmapViewTft16Bit_640480(unsigned char *pBuffer)
+N{
+N    UINT32T i, j;
+X    unsigned int i, j;
+N	UINT32T *pView = (UINT32T*)frameBuffer16BitTft640480;
+X	unsigned int *pView = (unsigned int*)frameBuffer16BitTft640480;
+N
+N	for (i = 0; i < LCD_YSIZE_TFT_640480; i++)
+X	for (i = 0; i < (480); i++)
+N	{
+N	   
+N	   
+N	  for (j = 0; j < LCD_XSIZE_TFT_640480/2 ; j++)
+X	  for (j = 0; j < (640)/2 ; j++)
+N	    {
+N	      
+N	      pView[j] = ((*(pBuffer+3)) << 24) + ((*(pBuffer+2)) << 16) + ((*(pBuffer+1)) << 8) + (*(pBuffer));
+N		 
+N		  pBuffer += 4;
+N	    
+N	    }
+N	    pView+=LCD_XSIZE_TFT_640480;
+X	    pView+=(640);
+N	}
+N
+N    
+N}
+N
+Nvoid BitmapViewTft16Bit_800480(UINT8T *pBuffer)
+Xvoid BitmapViewTft16Bit_800480(unsigned char *pBuffer)
+N{
+N   UINT32T i, j;
+X   unsigned int i, j;
+N	UINT32T *pView = (UINT32T*)frameBuffer16BitTft800480;
+X	unsigned int *pView = (unsigned int*)frameBuffer16BitTft800480;
+N
+N	for (i = 0; i < LCD_YSIZE_TFT_800480; i++)
+X	for (i = 0; i < (480); i++)
+N	{
+N	   for (j = 0; j < LCD_XSIZE_TFT_800480/2 ; j++)
+X	   for (j = 0; j < (800)/2 ; j++)
+N	    {
+N	      
+N	      pView[j] = ((*(pBuffer+1)) << 24) + ((*(pBuffer)) << 16) + ((*(pBuffer+3)) << 8) + (*(pBuffer+2));
+N		 
+N		  pBuffer += 4;
+N	    
+N	    }
+N	    pView+=LCD_XSIZE_TFT_800480;
+X	    pView+=(800);
+N	}
+N   
+N}
+Nvoid BitmapViewTft24Bit_640480(UINT8T *pBuffer)
+Xvoid BitmapViewTft24Bit_640480(unsigned char *pBuffer)
+N{
+N    
+N}
+Nvoid BitmapViewTft1Bit_800600(UINT8T *pBuffer)
+Xvoid BitmapViewTft1Bit_800600(unsigned char *pBuffer)
+N{
+N    
+N}
+Nvoid BitmapViewTft8Bit_800600(UINT8T *pBuffer)
+Xvoid BitmapViewTft8Bit_800600(unsigned char *pBuffer)
+N{
+N    
+N}
+Nvoid BitmapViewTft16Bit_800600(UINT8T *pBuffer)
+Xvoid BitmapViewTft16Bit_800600(unsigned char *pBuffer)
+N{
+N    
+N}
+N
+N/*********************************************************************************************
+N* name:		Glib_Rectangle()
+N* func:		describe a Rectangle
+N* para:		int x1      --  x coordinate 1
+N*           int y1      --  y coordinate 1
+N*           int x2      --  x coordinate 2
+N*           int y2      --  y coordinate 2
+N*           int color   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid Glib_Rectangle(int x1,int y1,int x2,int y2,int color)
+N{
+N    Glib_Line(x1,y1,x2,y1,color);
+N    Glib_Line(x2,y1,x2,y2,color);
+N    Glib_Line(x1,y2,x2,y2,color);
+N    Glib_Line(x1,y1,x1,y2,color);
+N}
+N
+N/*********************************************************************************************
+N* name:		Glib_FilledRectangle()
+N* func:		describe a FilledRectangle
+N* para:		int x1      --  x coordinate 1
+N*           int y1      --  y coordinate 1
+N*           int x2      --  x coordinate 2
+N*           int y2      --  y coordinate 2
+N*           int color   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid Glib_FilledRectangle(int x1,int y1,int x2,int y2,int color)
+N{
+N    int i;
+N
+N    for(i=y1;i<=y2;i++)
+N	Glib_Line(x1,i,x2,i,color);
+N}
+N
+N
+N
+N/*********************************************************************************************
+N* name:		Glib_Line()
+N* func:		describe a Line
+N* para:		int x1      --  x coordinate 1
+N*           int y1      --  y coordinate 1
+N*           int x2      --  x coordinate 2
+N*           int y2      --  y coordinate 2
+N*           int color   --  color value          
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid Glib_Line(int x1,int y1,int x2,int y2,int color)
+N{
+N	int dx,dy,e;
+N	dx=x2-x1; 
+N	dy=y2-y1;
+N    
+N	if(dx>=0)
+N	{
+N		if(dy >= 0)                                             // dy>=0
+N		{
+N			if(dx>=dy)                                          // 1/8 octant
+N			{
+N				e=dy-dx/2;
+N				while(x1<=x2)
+N				{
+N					PutPixel(x1,y1,color);
+N					if(e>0){y1+=1;e-=dx;}	
+N					x1+=1;
+N					e+=dy;
+N				}
+N			}
+N			else                                                // 2/8 octant
+N			{
+N				e=dx-dy/2;
+N				while(y1<=y2)
+N				{
+N					PutPixel(x1,y1,color);
+N					if(e>0){x1+=1;e-=dy;}	
+N					y1+=1;
+N					e+=dx;
+N				}
+N			}
+N		}
+N		else                                                    // dy<0
+N		{
+N			dy=-dy;                                             // dy=abs(dy)
+N
+N			if(dx>=dy)                                          // 8/8 octant
+N			{
+N				e=dy-dx/2;
+N				while(x1<=x2)
+N				{
+N					PutPixel(x1,y1,color);
+N					if(e>0){y1-=1;e-=dx;}	
+N					x1+=1;
+N					e+=dy;
+N				}
+N			}
+N			else                                                // 7/8 octant
+N			{
+N				e=dx-dy/2;
+N				while(y1>=y2)
+N				{
+N					PutPixel(x1,y1,color);
+N					if(e>0){x1+=1;e-=dy;}	
+N					y1-=1;
+N					e+=dx;
+N				}
+N			}
+N		}	
+N	}
+N	else                                                        //dx<0
+N	{
+N		dx=-dx;                                                 //dx=abs(dx)
+N		if(dy >= 0)                                             // dy>=0
+N		{
+N			if(dx>=dy)                                          // 4/8 octant
+N			{
+N				e=dy-dx/2;
+N				while(x1>=x2)
+N				{
+N					PutPixel(x1,y1,color);
+N					if(e>0){y1+=1;e-=dx;}	
+N					x1-=1;
+N					e+=dy;
+N				}
+N			}
+N			else                                                // 3/8 octant
+N			{
+N				e=dx-dy/2;
+N				while(y1<=y2)
+N				{
+N					PutPixel(x1,y1,color);
+N					if(e>0){x1-=1;e-=dy;}	
+N					y1+=1;
+N					e+=dx;
+N				}
+N			}
+N		}
+N		else                                                    // dy<0
+N		{
+N			dy=-dy;                                             // dy=abs(dy)
+N
+N			if(dx>=dy)                                          // 5/8 octant
+N			{
+N				e=dy-dx/2;
+N				while(x1>=x2)
+N				{
+N					PutPixel(x1,y1,color);
+N					if(e>0){y1-=1;e-=dx;}	
+N					x1-=1;
+N					e+=dy;
+N				}
+N			}
+N			else                                                // 6/8 octant
+N			{
+N				e=dx-dy/2;
+N				while(y1>=y2)
+N				{
+N					PutPixel(x1,y1,color);
+N					if(e>0){x1-=1;e-=dy;}	
+N					y1-=1;
+N					e+=dx;
+N				}
+N			}
+N		}	
+N	}
+N}
+N
+N
+N/*********************************************************************************************
+N* name:		Glib_ClearScr()
+N* func:		Clear screen with color value c
+N* para:		UINT32T c   --  color value 
+N*           int type    --  lcd display type         
+N* ret:		none
+N* modify:
+N* comment:		
+N*********************************************************************************************/
+Nvoid Glib_ClearScr(UINT32T c, int type)
+Xvoid Glib_ClearScr(unsigned int c, int type)
+N{	
+N    int i,j;
+N
+N    if((type&0x4000)&&(type&0x400))                                 // type:MODE_TFT_1BIT_800600|MODE_TFT_8BIT_800600|MODE_TFT_16BIT_800600
+N        for(j=0;j<SCR_YSIZE_TFT_800600;j++)
+X        for(j=0;j<((600)*2);j++)
+N            for(i=0;i<SCR_XSIZE_TFT_800600;i++)
+X            for(i=0;i<((800)*2);i++)
+N		        PutPixel(i,j,c);
+N
+N
+N   // else if((type&0x4000)&&(type&0x200))                            // type:MODE_TFT_1BIT_640480|MODE_TFT_8BIT_640480|MODE_TFT_16BIT_640480
+N     //   for(j=0;j<SCR_YSIZE_TFT_640480;j++)
+N     //       for(i=0;i<SCR_XSIZE_TFT_640480;i++)
+N	//	        PutPixel(i,j,c);
+N
+N	    else if((type&0x4000)&&(type&0x200))                            // type:MODE_TFT_1BIT_640480|MODE_TFT_8BIT_640480|MODE_TFT_16BIT_640480
+N        for(j=0;j<20;j++)
+N            for(i=0;i<20;i++)
+N		        PutPixel(i,j,c);
+N
+N
+N    else if((type&0x4000)&&(type&0x100))                            // type:MODE_TFT_1BIT_240320|MODE_TFT_8BIT_240320|MODE_TFT_16BIT_240320
+N        for(j=0;j<SCR_YSIZE_TFT_240320;j++)
+X        for(j=0;j<((320)*2);j++)
+N            for(i=0;i<SCR_XSIZE_TFT_240320;i++)
+X            for(i=0;i<((240)*2);i++)
+N		        PutPixel(i,j,c);
+N    else if(type&0x2000)                                            // type:MODE_CSTN_8BIT|MODE_CSTN_12BIT
+N        for(j=0;j<SCR_YSIZE_CSTN;j++)
+X        for(j=0;j<((240)*2);j++)
+N    	    for(i=0;i<SCR_XSIZE_CSTN;i++)
+X    	    for(i=0;i<((320)*2);i++)
+N		        PutPixel(i,j,c);
+N    else                                                            // type:MODE_CSTN_4BIT|MODE_STN_2BIT|MODE_STN_1BIT
+N        for(j=0;j<SCR_YSIZE_STN;j++)
+X        for(j=0;j<((240)*2);j++)
+N    	    for(i=0;i<SCR_XSIZE_STN;i++)
+X    	    for(i=0;i<((320)*2);i++)
+N		        PutPixel(i,j,c);
+N}

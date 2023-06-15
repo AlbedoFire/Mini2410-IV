@@ -1,0 +1,20 @@
+--cpu ARM920T
+".\sdram\s3c2410a.o"
+".\sdram\ascii6x8.o"
+".\sdram\ascii8x16.o"
+".\sdram\glib.o"
+".\sdram\lcd.o"
+".\sdram\lcdlib.o"
+".\sdram\main.o"
+".\sdram\hzk24.o"
+".\sdram\color_lcd_test.o"
+".\sdram\led16x16.o"
+".\sdram\hzk24s.o"
+".\sdram\fonts.o"
+".\sdram\dotled.o"
+".\sdram\2410lib.o"
+".\sdram\sys_init.o"
+--strict --scatter ".\SDRAM\LCD_Test.sct"
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\SDRAM\LCD_Test.map" -o .\SDRAM\LCD_Test.axf
